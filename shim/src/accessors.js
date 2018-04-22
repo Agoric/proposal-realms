@@ -56,5 +56,6 @@ export function repairAccessors(objProto) {
 
     } catch (ignore) {
         // Ignored
+        //MSM: Should an exception here be ignored? Diagnostic at least?
     }
 }

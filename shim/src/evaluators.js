@@ -14,12 +14,15 @@ function getEvalEvaluator(sandbox) {
     return o.eval;
 }
 
+//MSM: What about other Functionoid constructors?
 function getFunctionEvaluator(sandbox) {
     const { confinedWindow } = sandbox;
     const f = function Function(...args) {
         // console.log(`Shim-Evaluation: Function("${args.join('", "')}")`);
         const sourceText = args.pop();
         const fnArgs = args.join(', ');
+        //MSM: This is how SES protected against malformed args. But I'm not sure it's still safe.
+        //MSM: Why name it "anonymous"?
         return evaluate(`(function anonymous(${fnArgs}){\n${sourceText}\n}).bind(this)`, sandbox);
     }
     f.prototype = confinedWindow.Function.prototype;

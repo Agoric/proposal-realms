@@ -17,6 +17,7 @@ function addLexicalScopesToSource(sourceText) {
      * We have to use `arguments` instead of naming them to avoid name collision.
      */
     // escaping backsticks to prevent leaking the original eval as well as syntax errors
+    //MSM: Make the sourceText a parameter of the inner function to avoid backtick hazards?
     sourceText = sourceText.replace(/\`/g, '\\`');
     return `
         function ${HookFnName}() {
@@ -30,6 +31,8 @@ function addLexicalScopesToSource(sourceText) {
     `;
 }
 
+//MSM: Bad mixing of web-isms into otherwise general JS code. Move to separate module.
+//MSM: Why is this using a DOM script tag as an evaluator rather than original eval?
 function evalAndReturn(sourceText, sandbox) {
     const { iframeDocument, confinedWindow } = sandbox;
     const { body: iframeBody } = iframeDocument;
@@ -45,12 +48,17 @@ function evalAndReturn(sourceText, sandbox) {
 }
 
 export function evaluate(sourceText, sandbox) {
+    //MSM: For alleged string parameters like sourceText, should do one
+    // sourceText = sourceText + '';
+    //once up front so that it cannot change what string it alleges to be
+    //on each use by this function.
     if (!sourceText) {
         return undefined;
     }
     sourceText = addLexicalScopesToSource(sourceText + '');
     setInternalEvaluation();
     const fn = evalAndReturn(sourceText, sandbox);
+    //MSM: For a non-frozen realm, we need to uncurryThis rather than apply.
     const result = fn.apply(sandbox.thisValue, [sandbox.globalProxy]);
     resetInternalEvaluation();
     return result;

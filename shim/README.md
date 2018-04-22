@@ -13,7 +13,7 @@ The current implementation has 3 main limitations:
 ## Building the Shim
 
 ```bash
-git clone https://github.com/caridy/proposal-realms.git
+git clone https://github.com/agorics/proposal-realms.git
 cd proposal-realms
 npm install
 npm run build-shim-dev
