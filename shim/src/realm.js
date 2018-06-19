@@ -184,7 +184,7 @@ export default class Realm {
     const globalObj = getGlobalObject(sharedIntrinsics);
 
     const realmRec = {
-      unsafeRec,
+      unsafeRec, // todo: remove from realmRec
       sharedIntrinsics,
       globalObject: globalObj,
       safeEvaluators: undefined

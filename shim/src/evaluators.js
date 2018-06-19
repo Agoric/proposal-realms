@@ -67,6 +67,7 @@ export function getSafeEvaluator(realmRec) {
   setPrototypeOf(evaluator, unsafeFunction.prototype);
 
   defineProperty(evaluator, unsafeGlobal.Symbol.toStringTag, {
+    // todo test this
     value: 'function eval() { [shim code] }',
     writable: false,
     enumerable: false,
@@ -121,6 +122,7 @@ export function getFunctionEvaluator(unsafeFunction, unsafeGlobal, safeEvaluator
   // Provide a custom output without overwriting the Function.prototype.toString
   // which is called by some libraries.
   defineProperty(SafeFunction, unsafeGlobal.Symbol.toStringTag, {
+    // todo: does this make a difference?
     value: 'function Function() { [shim code] }',
     writable: false,
     enumerable: false,
