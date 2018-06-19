@@ -125,6 +125,14 @@ function createEvaluators(realmRec) {
   // a global and they are tied to a realm and to the intrinsics
   // of that realm.
   const safeEvaluator = getSafeEvaluator(realmRec);
+  // TODO: we give each Compartment (i.e. a Realm that inherits the
+  // intrinsics from a parent RootRealm instead of getting its own) its own
+  // Function constructor, and the Function.constructor points at something
+  // unusable. That doesn't usually matter, but sometimes
+  // performance-sensitive code will take a shortcut and test "f.constructor
+  // === Function" instead of doing "f instanceof Function". That shortcut
+  // will fail in compartments: they'll observe an identity discontinuity
+  // that they shouldn't.
   const functionEvaluator = getFunctionEvaluator(
     realmRec.unsafeRec.unsafeFunction,
     realmRec.unsafeRec.unsafeGlobal,
