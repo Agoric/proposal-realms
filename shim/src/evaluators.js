@@ -9,6 +9,7 @@ function buildOptimizer(constants) {
     return '';
   }
   if (constants.contains('eval')) throw new Error();
+  // todo: constants = constants.filter( ... non-writable, non-configurable
 
   return `const {${constants.join(',')}} = arguments[0];`;
 }
@@ -42,6 +43,10 @@ export function getSafeEvaluator(realmRec) {
   const proxy = new Proxy(globalObject, handler);
 
   const scopedEvaluator = unsafeRec.scopedEvaluatorFactory(proxy);
+
+  // todo: add method to regenerate scopedEvaluator after freezing various
+  // primordials. keep 'evaluator' identity the same, but the
+  // 'scopedEvaluator' it closes over will change
 
   // We use the the concise method syntax to create an eval without a
   // [[Construct]] behavior (such that the invocation "new eval()" throws
