@@ -1,4 +1,9 @@
-import { freeze, getPrototypeOf, objectHasOwnProperty } from './commons';
+import {
+  freeze,
+  getOwnPropertyDescriptor,
+  getPrototypeOf,
+  objectHasOwnProperty
+} from './commons';
 import { throwTantrum } from './utilities';
 
 /**
@@ -33,6 +38,8 @@ export function createScopeHandler(unsafeRec) {
   // realm's code or if it is user-land invocation, so we can react differently.
   let useUnsafeEvaluator = false;
 
+  let scopedEvaluatorMemo = undefined;
+
   return {
     // The scope handler throws if any trap other than get/set/has are run
     // (e.g. getOwnPropertyDescriptors, apply, getPrototypeOf).
@@ -45,6 +52,13 @@ export function createScopeHandler(unsafeRec) {
 
     unsafeEvaluatorAllowed() {
       return useUnsafeEvaluator;
+    },
+
+    getScopedEvaluatorMemo() {
+      return scopedEvaluatorMemo;
+    },
+    memoScopedEvaluator(newScopedEvaluator) {
+      scopedEvaluatorMemo = newScopedEvaluator;
     },
 
     get(target, prop) {
@@ -72,6 +86,12 @@ export function createScopeHandler(unsafeRec) {
 
       // Properties of the global.
       if (prop in target) {
+
+        const desc = getOwnPropertyDescriptor(getPrototypeOf(target), prop);
+        if (desc && desc.writable === false && desc.configurable === false) {
+          scopedEvaluatorMemo = undefined;
+        }
+        
         return target[prop];
       }
 
